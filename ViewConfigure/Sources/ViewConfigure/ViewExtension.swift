@@ -26,8 +26,20 @@ extension View {
         }
 
         // Inject stores as environment objects
+        // Try to use @Observable first (iOS 17+), fall back to ObservableObject
         for store in stores {
-            view = AnyView(view.environment(AnyStore(store)))
+            if #available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *) {
+                // Use @Observable environment injection if available
+                view = AnyView(view.environment(AnyStore(store)))
+            } else {
+                // Fall back to ObservableObject for older OS versions
+                // This cast is safe because we require Store implementations to conform to ObservableObject
+                // on older OS versions where @Observable is not available
+                if let observableStore = store as? any ObservableObject,
+                   let storeWithObservable = store as? any Store & ObservableObject {
+                    view = AnyView(view.environmentObject(AnyStoreObject(storeWithObservable)))
+                }
+            }
         }
 
         return view

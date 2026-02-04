@@ -19,13 +19,30 @@ public struct AnyListener {
 
 // MARK: - Type-erased Store
 /// Type-erased wrapper for Store protocol to allow storage in arrays
+/// Supports both @Observable (iOS 17+/macOS 14+) and ObservableObject (all versions)
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
 @Observable
-public class AnyStore {
+public final class AnyStore {
     public let id: UUID
-    public let objectWillChange: AnyPublisher<Void, Never>
-
+    // Store reference to prevent deallocation
+    private let store: Any
+    
     public init<S: Store>(_ store: S) {
         self.id = store.id
+        self.store = store
+    }
+}
+
+/// Type-erased wrapper for Store protocol using ObservableObject for backward compatibility
+public final class AnyStoreObject: ObservableObject {
+    public let id: UUID
+    public let objectWillChange: AnyPublisher<Void, Never>
+    // Store reference to prevent deallocation and maintain observation chain
+    private let store: Any
+    
+    public init<S: Store & ObservableObject>(_ store: S) {
+        self.id = store.id
+        self.store = store
         self.objectWillChange = store.objectWillChange.map { _ in }.eraseToAnyPublisher()
     }
 }
