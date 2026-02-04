@@ -24,6 +24,7 @@ public struct AnyListener {
 @Observable
 public final class AnyStore {
     public let id: UUID
+    // Store reference to prevent deallocation
     private let store: Any
     
     public init<S: Store>(_ store: S) {
@@ -36,6 +37,7 @@ public final class AnyStore {
 public final class AnyStoreObject: ObservableObject {
     public let id: UUID
     public let objectWillChange: AnyPublisher<Void, Never>
+    // Store reference to prevent deallocation and maintain observation chain
     private let store: Any
     
     public init<S: Store & ObservableObject>(_ store: S) {

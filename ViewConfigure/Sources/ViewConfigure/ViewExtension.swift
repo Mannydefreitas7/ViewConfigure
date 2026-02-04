@@ -31,9 +31,14 @@ extension View {
             if #available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *) {
                 // Use @Observable environment injection if available
                 view = AnyView(view.environment(AnyStore(store)))
-            } else if let observableStore = store as? any ObservableObject {
+            } else {
                 // Fall back to ObservableObject for older OS versions
-                view = AnyView(view.environmentObject(AnyStoreObject(observableStore as! any Store & ObservableObject)))
+                // This cast is safe because we require Store implementations to conform to ObservableObject
+                // on older OS versions where @Observable is not available
+                if let observableStore = store as? any ObservableObject,
+                   let storeWithObservable = store as? any Store & ObservableObject {
+                    view = AnyView(view.environmentObject(AnyStoreObject(storeWithObservable)))
+                }
             }
         }
 
