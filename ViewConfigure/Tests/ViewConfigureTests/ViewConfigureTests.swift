@@ -23,7 +23,7 @@ public struct MyTestListener {
 }
 
 @Register(.store)
-public class MyTestStore {
+public class MyTestStore: ObservableObject {
     public var id = UUID()
 
     required public init() {}
@@ -32,7 +32,7 @@ public class MyTestStore {
 final class ViewConfigureTests: XCTestCase {
 
     // MARK: - Test Stores
-    class TestUserStore: Store {
+    class TestUserStore: Store, ObservableObject {
         let id = UUID()
         @Published var username: String = "TestUser"
     }
@@ -71,7 +71,8 @@ final class ViewConfigureTests: XCTestCase {
 
     func testAnyStoreWrapping() {
         let userStore = TestUserStore()
-        let anyStore = AnyStore(userStore)
+        // Use AnyStoreObject for ObservableObject-based stores
+        let anyStore = AnyStoreObject(userStore)
         XCTAssertEqual(anyStore.id, userStore.id)
     }
 
