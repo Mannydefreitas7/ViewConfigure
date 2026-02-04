@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 // MARK: - Listener Protocol
 /// Protocol for event handlers that can be applied to views
@@ -8,8 +9,8 @@ public protocol Listener {
 }
 
 // MARK: - Store Protocol
-/// Protocol for ObservableObject stores that can be injected into the environment
-@Observable
+/// Protocol for stores that can be injected into the environment
+/// Implementations should conform to ObservableObject or use @Observable based on target OS version
 public protocol Store {
     var id: UUID { get }
 }
